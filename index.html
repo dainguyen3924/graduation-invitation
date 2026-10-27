@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đại Nguyễn's Graduation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- music -->    
+    <audio id="backgroundMusic"
+        src="/audio/background-music.mp3"
+        loop
+        preload="auto">
+    </audio>
+
+    <!-- Opening envelope -->
+    <section class="envelope-screen" id="envelopeScreen">
+        <p data-i18n="envelope.title">YOU ARE INVITED!</p>
+
+        <button class="envelope" id="openEnvelope"
+        aria-label="Open the invitation">
+            <span class="envelope__letter"></span>
+            <span class="envelope__flap"></span>
+            <span class="envelope__front"></span>
+            <span class="envelope__seal">D</span>
+        </button>
+
+        <h3 class="open-hint" data-i18n="envelope.hint">TAP TO OPEN</h3>
+    </section>
+
+
+    <!-- language switch button -->
+    <div class="language-switch" aria-label="Choose language">
+        <button type="button" data-lang="en" class="active">EN</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" data-lang="vi">VI</button>
+    </div>
+
+    <!-- main -->
+     <main id="invitation" hidden>
+        <section class="hero">
+            <h2 data-i18n="hero.title">Happy graduation</h2>
+            <div class="hero-image">
+                <img src="/pic/graduation-cap-and-diploma-with-red-ribbon-isolated-on-a-transparent-background-scroll-free-png.webp" alt="graduation hat">
+            </div>
+            <h1 data-i18n="hero.name">Dai Nguyen</h1>
+            
+            <div class="info">
+                <div class="info-main">
+                    <div class="info-title">
+                        <h2 data-i18n="hero.subTitle">INFORMATION</h2>
+                    </div>
+
+                    <div class="info-detail">
+                        <div class="upper">
+                            <div class="date">
+                                <h3 data-i18n="hero.date">DATE:</h3>
+                                <p>30.11.2026</p>
+                            </div>
+
+                            <div class="class">
+                                <h3 data-i18n="hero.class">CLASS:</h3>
+                                <p>DHAV18A</p>
+                            </div>
+                        </div>
+
+                        <div class="lower">
+                            <h3 data-i18n="hero.location">LOCATION:</h3>
+                            <p data-i18n="hero.location2">12 Nguyen Van Bao, Hanh Thong Ward, HCM</p>
+
+                            <a
+                                href="https://www.google.com/maps/search/?api=1&query=Industrial+University+of+Ho+Chi+Minh+City"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                data-i18n="hero.map"
+                            >
+                                VIEW LOCATION ↗
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="info-university" data-i18n="hero.school">INDUSTRIAL UNIVERSITY</h2>
+
+            </div>
+
+        </section>
+
+        <section class="quate">
+            <div class="quote">
+                <h1 data-i18n="quote.title">A New Chapter <br> Begins</h1>
+                <p data-i18n="quote.content">Graduation is not the end of the journey, but the beginning of a new chapter filled with possibilities, dreams, and endless opportunities. As one chapter closes, I carry with me the memories, lessons, and people who made the journey worthwhile.</p>
+                <div class="quote-image">
+                    <img src="https://images.unsplash.com/photo-1633734973050-d6499a977c17?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="image.com">
+                </div>
+            </div>
+            <div class="calender-wrap">
+                <h1>Save The Date</h1>
+                <h2 data-i18n="calender.subTitle">a little note for your calendar</h2>
+                <div class="calender">
+                    <div class="calender-title"><h2 data-i18n="calender.month">November</h2></div>
+                    <div class="calender-grid">
+                        <span data-i18n="calender.mon">MON</span>
+                        <span data-i18n="calender.tue">TUE</span>
+                        <span data-i18n="calender.wed">WED</span>
+                        <span data-i18n="calender.thur">THUR</span>
+                        <span data-i18n="calender.fri">FRI</span>
+                        <span data-i18n="calender.sat">SAT</span>
+                        <span data-i18n="calender.sun">SUN</span>
+
+                        <!-- Các ô trống trước ngày 1 -->
+                        <span class="empty"></span>
+                        <span class="empty"></span>
+                        <span class="empty"></span>
+                        <span class="empty"></span>
+                        <span class="empty"></span>
+                        <span class="empty"></span>
+
+                        <span>1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                        <span>6</span>
+                        <span>7</span>
+                        <span>8</span>
+                        <span>9</span>
+                        <span>10</span>
+                        <span>11</span>
+                        <span>12</span>
+                        <span>13</span>
+                        <span>14</span>
+                        <span>15</span>
+                        <span>16</span>
+                        <span>17</span>
+                        <span>18</span>
+                        <span>19</span>
+                        <span>20</span>
+                        <span>21</span>
+                        <span>22</span>
+                        <span>23</span>
+                        <span>24</span>
+                        <span>25</span>
+                        <span>26</span>
+                        <span>27</span>
+                        <span>28</span>
+                        <span>29</span>
+
+                        <!-- Ngày tốt nghiệp -->
+                        <span class="graduation-day">30</span>
+                    </div>
+                    <h2 data-i18n="calender.detail">Mon . 30/11/2026</h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="photo">
+            <h1 data-i18n="photo.title">Some photo of me</h1>
+            <div class="photo-grid">
+                <img src="https://images.unsplash.com/photo-1658235081483-8f06aa0882cf?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="">
+                <img src="https://images.unsplash.com/photo-1658235081452-c2ded30b8d9f?q=80&w=1414&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="">
+                <img src="https://images.unsplash.com/photo-1650064175560-369b5b45b649?q=80&w=1473&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="">
+                <img src="https://images.unsplash.com/photo-1627556704353-016baeb12c79?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="">
+            </div>
+        </section>
+
+        <section class="schedule">
+            <h2 data-i18n="schedule.title">DAY'S SCHEDULE</h2>
+            <div class="schedule__list">
+
+                <div class="schedule__item">
+                    <div class="schedule__info">
+                        <h3 data-i18n="schedule.photo">Photo Session</h3>
+                        
+                    </div>
+                    <h3 class="schedule__time">10:00</h3>
+                </div>
+
+                <div class="schedule__item">
+                    <div class="schedule__info">
+                        <h3 data-i18n="schedule.grad">Graduation Ceremony</h3>
+                        
+                    </div>
+                    <h3 class="schedule__time">13:30</h3>
+                </div>
+
+                <div class="schedule__item">
+                    <div class="schedule__info">
+                        <h3 data-i18n="schedule.end">Ceremony Ends</h3>
+                        
+                    </div>
+                    <h3 class="schedule__time">16:00</h3>
+                </div>
+
+                <div class="schedule__item">
+                    <div class="schedule__info">
+                        <h3 data-i18n="schedule.dinner">Family Dinner</h3>
+                        
+                    </div>
+                    <h3 class="schedule__time">16:30</h3>
+                </div>
+
+            </div>
+        </section>
+        
+        <section class="wishes" id="wishes">
+            <h1 data-i18n="wishes.title">Leave a wish for <br> Van Dai </h1>
+            
+            <form action="" class="wishes__form" id="wishes__form">
+                <label for="wishName" data-i18n="wishes.name">Your Name</label>
+                <input 
+                    type="text"
+                    id="wishName"
+                    name="wishName"
+                    placeholder="Nguyễn Văn A"
+                    maxlength="80"
+                    required
+                >
+
+                <label for="wishMessage" data-i18n="wishes.wish">Your wishes</label>
+                <textarea 
+                    id="wishMessage"
+                    name="wishMessage"
+                    placeholder="happy graduation"
+                    rows="4"
+                    maxlength="1000"
+                    required
+                ></textarea>
+
+                <button class="wishes__submit" type="submit" data-i18n="wishes.submit">Send your wishes <span aria-hidden="true">↗</span></button>
+            </form>
+
+            <!-- comment area -->
+            <div class="wishes-list__header">
+                <h3 data-i18n="wishes.word">Words from you</h3>
+                <span id="wishCount" data-i18n="wishes.count">0 wishes</span>
+            </div>
+
+            <div class="wishes__list" id="wishList" aria-live="polite">
+                <p class="wishes__empty" id="wishEmpty" data-i18n="wishes.comment">
+                    Your wishes will appear here ♡
+                </p>
+            </div>   
+        </section>
+
+        <footer>
+            <p data-i18n="footer.subT">Having you share in this milestone means more than words can express </p>
+            <h3 data-i18n="footer.thank">thank you</h3>
+        </footer>
+
+
+     </main>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/i18next@25.6.0/dist/umd/i18next.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
