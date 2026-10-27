@@ -192,6 +192,13 @@ document.querySelectorAll("[data-lang]").forEach((button) => {
 
 
 
+const SUPABASE_URL = "https://dqizjxrhbcidqtdemxli.supabase.co/rest/v1/";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_CmAMPt9sbNzNy6WDSzeg5w_lUGKAhnn";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 
 
 const wishForm = document.querySelector("#wishes__form");
@@ -200,7 +207,7 @@ const wishMessage = document.querySelector("#wishMessage");
 const wishList = document.querySelector("#wishList");
 const wishCount = document.querySelector("#wishCount");
 
-const WISH_STORAGE_KEY = "dai-graduation-wishes";
+const LIKED_STORAGE_KEY = "dai-graduation-liked-wishes";
 
 const avatarColors = [
   "#9B7764",
@@ -212,88 +219,44 @@ const avatarColors = [
   "#777777"
 ];
 
-// Đọc lời chúc đã lưu trên trình duyệt
-function getWishes() {
+// Lấy danh sách ID những lời chúc đã thả tim trên trình duyệt này
+function getLikedWishes() {
   try {
-    const saved = localStorage.getItem(WISH_STORAGE_KEY);
-    const parsed = saved ? JSON.parse(saved) : [];
-
-    return Array.isArray(parsed) ? parsed : [];
+    return JSON.parse(
+      localStorage.getItem(LIKED_STORAGE_KEY) || "[]"
+    );
   } catch {
     return [];
   }
 }
 
-// Lưu lời chúc
-function saveWishes(wishes) {
-  try {
-    localStorage.setItem(
-      WISH_STORAGE_KEY,
-      JSON.stringify(wishes)
-    );
-  } catch {
-    alert("Không thể lưu dữ liệu trên trình duyệt này.");
-  }
-}
-
-// Tạo một thẻ HTML cho mỗi lời chúc
-function createWishCard(wish) {
-  const card = document.createElement("article");
-  card.className = "wish-card";
-
-  const avatar = document.createElement("div");
-  avatar.className = "wish-card__avatar";
-  avatar.style.backgroundColor = wish.color;
-  avatar.textContent = wish.name.trim().charAt(0).toUpperCase();
-  avatar.setAttribute("aria-hidden", "true");
-
-  const content = document.createElement("div");
-  content.className = "wish-card__content";
-
-  const name = document.createElement("h4");
-  name.className = "wish-card__name";
-  name.textContent = wish.name;
-
-  const message = document.createElement("p");
-  message.className = "wish-card__message";
-  message.textContent = wish.message;
-
-  const likeButton = document.createElement("button");
-  likeButton.className = "wish-card__like";
-  likeButton.type = "button";
-  likeButton.textContent = wish.liked ? "♥" : "♡";
-  likeButton.classList.toggle("is-liked", wish.liked);
-  likeButton.setAttribute("aria-pressed", String(wish.liked));
-  likeButton.setAttribute(
-    "aria-label",
-    wish.liked ? "Bỏ thả tim lời chúc" : "Thả tim lời chúc"
-  );
-
-  // Nhấn tim để đổi trạng thái
-  likeButton.addEventListener("click", () => {
-    const wishes = getWishes();
-    const currentWish = wishes.find(
-      (item) => item.id === wish.id
-    );
-
-    if (!currentWish) return;
-
-    currentWish.liked = !currentWish.liked;
-    saveWishes(wishes);
-    renderWishes();
-  });
-
-  content.append(name, message);
-  card.append(avatar, content, likeButton);
-
-  return card;
-}
-
-// Hiển thị danh sách lời chúc
-function renderWishes() {
-  const wishes = getWishes();
-
+// Hiển thị danh sách lời chúc từ Supabase
+async function renderWishes() {
   wishList.replaceChildren();
+
+  const loading = document.createElement("p");
+  loading.className = "wishes__empty";
+  loading.textContent = "Loading wishes...";
+  wishList.append(loading);
+
+  const { data: wishes, error } = await supabaseClient
+    .from("wishes")
+    .select("id, name, message, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error loading wishes:", error);
+    wishList.replaceChildren();
+
+    const errorMessage = document.createElement("p");
+    errorMessage.className = "wishes__empty";
+    errorMessage.textContent =
+      "Unable to load wishes. Please try again later.";
+
+    wishList.append(errorMessage);
+    wishCount.textContent = "—";
+    return;
+  }
 
   wishCount.textContent = `${wishes.length} ${
     wishes.length === 1 ? "wish" : "wishes"
@@ -303,19 +266,74 @@ function renderWishes() {
     const emptyMessage = document.createElement("p");
     emptyMessage.className = "wishes__empty";
     emptyMessage.textContent =
-      "No wishes yet. Be the first to leave one!";
+      "No wishes yet. Be the first to leave one! ♡";
 
     wishList.append(emptyMessage);
     return;
   }
 
+  const likedIds = getLikedWishes();
+
   wishes.forEach((wish) => {
-    wishList.append(createWishCard(wish));
+    const card = document.createElement("article");
+    card.className = "wish-card";
+
+    const avatar = document.createElement("div");
+    avatar.className = "wish-card__avatar";
+
+    const colorIndex = Math.abs(Number(wish.id)) % avatarColors.length;
+    avatar.style.backgroundColor = avatarColors[colorIndex];
+    avatar.textContent = wish.name.trim().charAt(0).toUpperCase();
+    avatar.setAttribute("aria-hidden", "true");
+
+    const content = document.createElement("div");
+    content.className = "wish-card__content";
+
+    const name = document.createElement("h4");
+    name.className = "wish-card__name";
+    name.textContent = wish.name;
+
+    const message = document.createElement("p");
+    message.className = "wish-card__message";
+    message.textContent = wish.message;
+
+    const isLiked = likedIds.includes(wish.id);
+
+    const likeButton = document.createElement("button");
+    likeButton.className = "wish-card__like";
+    likeButton.type = "button";
+    likeButton.textContent = isLiked ? "♥" : "♡";
+    likeButton.classList.toggle("is-liked", isLiked);
+    likeButton.setAttribute("aria-pressed", String(isLiked));
+    likeButton.setAttribute(
+      "aria-label",
+      isLiked ? "Bỏ thả tim lời chúc" : "Thả tim lời chúc"
+    );
+
+    likeButton.addEventListener("click", () => {
+      const currentLikedIds = getLikedWishes();
+      const alreadyLiked = currentLikedIds.includes(wish.id);
+
+      const updatedIds = alreadyLiked
+        ? currentLikedIds.filter((id) => id !== wish.id)
+        : [...currentLikedIds, wish.id];
+
+      localStorage.setItem(
+        LIKED_STORAGE_KEY,
+        JSON.stringify(updatedIds)
+      );
+
+      renderWishes();
+    });
+
+    content.append(name, message);
+    card.append(avatar, content, likeButton);
+    wishList.append(card);
   });
 }
 
-// Xử lý khi gửi lời chúc
-wishForm.addEventListener("submit", (event) => {
+// Gửi lời chúc lên Supabase
+wishForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const name = wishName.value.trim();
@@ -323,25 +341,33 @@ wishForm.addEventListener("submit", (event) => {
 
   if (!name || !message) return;
 
-  const wishes = getWishes();
+  if (name.length > 60 || message.length > 500) {
+    alert("Name must be at most 60 characters and wish at most 500 characters.");
+    return;
+  }
 
-  const newWish = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    name,
-    message,
-    color:
-      avatarColors[
-        Math.floor(Math.random() * avatarColors.length)
-      ],
-    liked: false
-  };
+  const submitButton = wishForm.querySelector(
+    'button[type="submit"]'
+  );
 
-  wishes.unshift(newWish);
-  saveWishes(wishes);
+  submitButton.disabled = true;
 
-  renderWishes();
-  wishForm.reset();
+  try {
+    const { error } = await supabaseClient
+      .from("wishes")
+      .insert([{ name, message }]);
+
+    if (error) throw error;
+
+    wishForm.reset();
+    await renderWishes();
+  } catch (error) {
+    console.error("Error sending wish:", error);
+    alert("Could not send your wish. Please try again.");
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
-// Hiển thị lời chúc đã lưu khi mở trang
+// Tải lời chúc khi mở trang
 renderWishes();
