@@ -192,7 +192,7 @@ document.querySelectorAll("[data-lang]").forEach((button) => {
 
 
 
-const SUPABASE_URL = "https://dqizjxrhbcidqtdemxli.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://dqizjxrhbcidqtdemxli.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_CmAMPt9sbNzNy6WDSzeg5w_lUGKAhnn";
 
 const supabaseClient = window.supabase.createClient(
