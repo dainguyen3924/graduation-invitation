@@ -220,8 +220,21 @@ const wishMessage = document.querySelector("#wishMessage");
 const wishList = document.querySelector("#wishList");
 const wishCount = document.querySelector("#wishCount");
 
-const LIKED_STORAGE_KEY = "dai-graduation-liked-wishes";
+// Tạo mã nhận diện riêng cho trình duyệt
+const VISITOR_STORAGE_KEY = "dai-graduation-visitor-id";
 
+function getVisitorId() {
+  let visitorId = localStorage.getItem(VISITOR_STORAGE_KEY);
+
+  if (!visitorId) {
+    visitorId = crypto.randomUUID();
+    localStorage.setItem(VISITOR_STORAGE_KEY, visitorId);
+  }
+
+  return visitorId;
+}
+
+// Bảng màu avatar
 const avatarColors = [
   "#9B7764",
   "#7D8B72",
@@ -232,18 +245,7 @@ const avatarColors = [
   "#777777"
 ];
 
-// Lấy danh sách ID những lời chúc đã thả tim trên trình duyệt này
-function getLikedWishes() {
-  try {
-    return JSON.parse(
-      localStorage.getItem(LIKED_STORAGE_KEY) || "[]"
-    );
-  } catch {
-    return [];
-  }
-}
-
-// Hiển thị danh sách lời chúc từ Supabase
+// Hiển thị danh sách lời chúc và lượt Like
 async function renderWishes() {
   wishList.replaceChildren();
 
@@ -252,19 +254,19 @@ async function renderWishes() {
   loading.textContent = "Loading wishes...";
   wishList.append(loading);
 
-  const { data: wishes, error } = await supabaseClient
+  // Lấy lời chúc
+  const { data: wishes, error: wishesError } = await supabaseClient
     .from("wishes")
     .select("id, name, message, created_at")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error loading wishes:", error);
+  if (wishesError) {
+    console.error("Error loading wishes:", wishesError);
     wishList.replaceChildren();
 
     const errorMessage = document.createElement("p");
     errorMessage.className = "wishes__empty";
-    errorMessage.textContent =
-      "Unable to load wishes. Please try again later.";
+    errorMessage.textContent = "Unable to load wishes. Please try again later.";
 
     wishList.append(errorMessage);
     wishCount.textContent = "—";
@@ -278,14 +280,30 @@ async function renderWishes() {
   if (wishes.length === 0) {
     const emptyMessage = document.createElement("p");
     emptyMessage.className = "wishes__empty";
-    emptyMessage.textContent =
-      "No wishes yet. Be the first to leave one! ♡";
+    emptyMessage.textContent = "No wishes yet. Be the first to leave one! ♡";
 
-    wishList.append(emptyMessage);
+    wishList.replaceChildren(emptyMessage);
     return;
   }
 
-  const likedIds = getLikedWishes();
+  // Lấy toàn bộ lượt Like từ Supabase
+  const { data: likes, error: likesError } = await supabaseClient
+    .from("wish_likes")
+    .select("wish_id, visitor_id");
+
+  if (likesError) {
+    console.error("Error loading likes:", likesError);
+    wishList.replaceChildren();
+
+    const errorMessage = document.createElement("p");
+    errorMessage.className = "wishes__empty";
+    errorMessage.textContent = "Unable to load likes. Please try again later.";
+
+    wishList.append(errorMessage);
+    return;
+  }
+
+  const visitorId = getVisitorId();
 
   wishes.forEach((wish) => {
     const card = document.createElement("article");
@@ -310,7 +328,17 @@ async function renderWishes() {
     message.className = "wish-card__message";
     message.textContent = wish.message;
 
-    const isLiked = likedIds.includes(wish.id);
+    // Đếm lượt Like của lời chúc này
+    const wishLikes = likes.filter(
+      (like) => String(like.wish_id) === String(wish.id)
+    );
+
+    const likeCount = wishLikes.length;
+
+    // Kiểm tra trình duyệt hiện tại đã Like chưa
+    const isLiked = wishLikes.some(
+      (like) => like.visitor_id === visitorId
+    );
 
     const likeButton = document.createElement("button");
     likeButton.className = "wish-card__like";
@@ -323,26 +351,57 @@ async function renderWishes() {
       isLiked ? "Bỏ thả tim lời chúc" : "Thả tim lời chúc"
     );
 
+    // Hiển thị số lượt Like
+    const likeNumber = document.createElement("span");
+    likeNumber.className = "wish-card__like-count";
+    likeNumber.textContent = likeCount;
+
     likeButton.addEventListener("click", () => {
-      const currentLikedIds = getLikedWishes();
-      const alreadyLiked = currentLikedIds.includes(wish.id);
-
-      const updatedIds = alreadyLiked
-        ? currentLikedIds.filter((id) => id !== wish.id)
-        : [...currentLikedIds, wish.id];
-
-      localStorage.setItem(
-        LIKED_STORAGE_KEY,
-        JSON.stringify(updatedIds)
-      );
-
-      renderWishes();
+      toggleLike(wish.id, isLiked, likeButton);
     });
 
     content.append(name, message);
-    card.append(avatar, content, likeButton);
+    card.append(avatar, content, likeButton, likeNumber);
     wishList.append(card);
   });
+}
+
+// Thêm hoặc xóa Like trên Supabase
+async function toggleLike(wishId, isLiked, button) {
+  button.disabled = true;
+
+  const visitorId = getVisitorId();
+
+  try {
+    if (isLiked) {
+      // Bỏ Like
+      const { error } = await supabaseClient
+        .from("wish_likes")
+        .delete()
+        .eq("wish_id", wishId)
+        .eq("visitor_id", visitorId);
+
+      if (error) throw error;
+    } else {
+      // Thêm Like
+      const { error } = await supabaseClient
+        .from("wish_likes")
+        .insert([
+          {
+            wish_id: wishId,
+            visitor_id: visitorId
+          }
+        ]);
+
+      if (error) throw error;
+    }
+
+    await renderWishes();
+  } catch (error) {
+    console.error("Error updating like:", error);
+    alert("Could not update your like. Please try again.");
+    button.disabled = false;
+  }
 }
 
 // Gửi lời chúc lên Supabase
@@ -359,10 +418,7 @@ wishForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  const submitButton = wishForm.querySelector(
-    'button[type="submit"]'
-  );
-
+  const submitButton = wishForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
 
   try {
