@@ -2,19 +2,21 @@
 const backgroundMusic = document.querySelector("#backgroundMusic");
 
 backgroundMusic.volume = 0.5;
+
 const envelope = document.querySelector("#openEnvelope");
 const envelopeScreen = document.querySelector("#envelopeScreen");
 const invitation = document.querySelector("#invitation");
 
-
-envelope.addEventListener("click", () => {
-  backgroundMusic.play().catch((error) => {
+// Mở phong bì và phát nhạc
+envelope.addEventListener("click", async () => {
+  try {
+    await backgroundMusic.play();
+  } catch (error) {
     console.log("Không thể phát nhạc:", error);
-  });
+  }
 
-  // Giữ nguyên phần code mở phong bì phía dưới
+  // Giữ nguyên hiệu ứng mở phong bì
   envelope.disabled = true;
-
   envelope.classList.add("is-open");
 
   setTimeout(() => {
@@ -28,6 +30,17 @@ envelope.addEventListener("click", () => {
   }, 1600);
 });
 
+// Dừng nhạc khi người dùng chuyển khỏi tab
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    backgroundMusic.pause();
+  }
+});
+
+// Dừng nhạc khi người dùng rời khỏi trang
+window.addEventListener("pagehide", () => {
+  backgroundMusic.pause();
+});
 
 
 
