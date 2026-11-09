@@ -84,7 +84,7 @@ const translations = {
         photo: "Photo Session",
         grad: "Graduation Ceremony",
         end: "Ceremony Ends",
-        dinner: "Family Dinner"
+        dinner: "Family Time"
       },
       wishes: {
         title: "Leave a wish for Van Dai ",
