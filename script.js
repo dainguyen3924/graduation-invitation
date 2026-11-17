@@ -440,25 +440,3 @@ wishForm.addEventListener("submit", async (event) => {
 
 // Tải lời chúc khi mở trang
 renderWishes();
-
-// Tải lời chúc khi mở trang
-renderWishes();
-
-// Đồng bộ Like realtime giữa các thiết bị
-const likesChannel = supabaseClient
-  .channel("wish-likes-realtime")
-  .on(
-    "postgres_changes",
-    {
-      event: "*",
-      schema: "public",
-      table: "wish_likes"
-    },
-    async (payload) => {
-      console.log("Like data changed:", payload);
-      await renderWishes();
-    }
-  )
-  .subscribe((status) => {
-    console.log("Realtime status:", status);
-  });
